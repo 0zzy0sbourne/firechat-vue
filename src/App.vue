@@ -17,17 +17,39 @@
     </form>
   </div>  
   <div class="view chat" v-else> 
-    Chat View
+    <header>
+      <button class="logout">Logout</button>
+      <h1>Welcome, {{state.username}}</h1>
+    </header>
+    <section class="chat-box">
+      // messages
+    </section>
+    <footer>
+      <form @submit.prevent="sendMessage">
+          <input 
+            v-model="inputMessage"
+            type="text" 
+            placeholder="Write a message..." 
+          />
+          <input 
+            type="submit" 
+            value="Send"   
+          />
+      </form>
+    </footer>
   </div>
 </template>
 
 <script>
 import {reactive, onMounted, ref} from "vue"; 
 import db from "./db"; 
+import * as firebase from "firebase/database"
 
 export default {
+  
   setup() {
-    const inputUsername = ref("")
+    const inputUsername = ref(""); 
+    const inputMessage = ref(""); 
     const state = reactive({
       username: "", 
       messages: [], 
@@ -40,10 +62,31 @@ export default {
       }
     }
 
+    const sendMessage = () => {
+      
+      // const messagesRef = db.ref("messages")
+
+      if(inputMessage.value === "" || inputMessage.value === null) {
+        return; 
+      }
+      
+      const message = {
+        username: state.username,
+        content: inputMessage.value 
+      }
+      console.log("test1")
+      firebase.set(firebase.ref(db, "messages"), message); 
+      // messagesRef.push(message); 
+      inputMessage.value = "";
+      console.log("test2") 
+    }
+
     return {
       inputUsername,
       Login, 
-      state
+      state, 
+      inputMessage, 
+      sendMessage
     } 
   }
 }
